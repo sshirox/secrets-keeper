@@ -23,7 +23,7 @@ go.sum   # Dependency checksum file (optional)
 *.cover  # Code coverage reports
 
 # IDE/editor config files
-.idea/    # JetBrains (GoLand, IntelliJ IDEA)
+.idea     # JetBrains (GoLand, IntelliJ IDEA)
 .vscode/  # VS Code settings
 *.swp     # Vim swap files
 *.bak     # Backup files
