@@ -34,7 +34,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// Функция генерации токена
 func GenerateToken(userID string) (string, error) {
 	_, tokenString, err := TokenAuth.Encode(map[string]interface{}{"user_id": userID})
 	return tokenString, err
