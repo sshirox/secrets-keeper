@@ -1,43 +1,33 @@
-# Binary files and build artifacts
-*.exe    # Windows executables
-*.out    # Unix/Linux executables
-*.app    # macOS applications
-*.bin    # Binary files
-*.o      # Object files
-*.a      # Static libraries
-*.so     # Shared libraries
-*.dll    # Windows dynamic libraries
+*.exe
+*.out
+*.app
+*.bin
+*.o
+*.a
+*.so
+*.dll
 
-# Go build cache and dependencies
-/pkg/    # Compiled packages (GOPATH mode)
-/bin/    # Built binaries (GOPATH mode)
-vendor/  # Vendor directory (if using `go mod vendor`)
+/pkg/
+/bin/
+vendor/
 
-# Go Modules
-go.sum   # Dependency checksum file (optional)
+.cache/
+*.test
+*.prof
+*.cover
 
-# Temporary build/test files
-.cache/  # Build cache
-*.test   # Compiled test binaries
-*.prof   # Profiling files
-*.cover  # Code coverage reports
+.idea
+.vscode/
+*.swp
+*.bak
 
-# IDE/editor config files
-.idea     # JetBrains (GoLand, IntelliJ IDEA)
-.vscode/  # VS Code settings
-*.swp     # Vim swap files
-*.bak     # Backup files
-
-# Logs and temporary files
 *.log
 *.tmp
 *.lock
-.DS_Store # macOS system file
+.DS_Store
 
-# Configuration files (optional)
-.env        # Environment variables
-config.yaml # YAML configuration
-config.json # JSON configuration
+.env
+config.yaml
+config.json
 
-# Docker (if used)
-docker-compose.override.yml # Local override for docker-compose
+docker-compose.override.yml
