@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user models.User
-	database.DB.Where("username = ?", req.Email).First(&user)
+	database.DB.Where("email = ?", req.Email).First(&user)
 
 	if user.ID == "" || !auth.VerifyPassword(req.Password, user.PasswordHash) {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
