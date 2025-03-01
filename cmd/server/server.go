@@ -28,9 +28,9 @@ func main() {
 	r.Route("/vault", func(r chi.Router) {
 		r.Use(auth.AuthMiddleware)
 
-		r.Post("/", handlers.AddVaultEntry)
-		r.Get("/", handlers.GetVaultEntries)
-		r.Delete("/{id}", handlers.DeleteVaultEntry)
+		r.Post("/", handlers.AddVaultSecret)
+		r.Get("/", handlers.GetVaultSecrets)
+		r.Delete("/{id}", handlers.DeleteVaultSecret)
 	})
 
 	port := os.Getenv("PORT")

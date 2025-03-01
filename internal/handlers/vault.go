@@ -15,7 +15,7 @@ type VaultRequest struct {
 	Metadata string `json:"metadata"`
 }
 
-func AddVaultEntry(w http.ResponseWriter, r *http.Request) {
+func AddVaultSecret(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("user_id").(string)
 
 	var req VaultRequest
@@ -30,46 +30,46 @@ func AddVaultEntry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entry := models.VaultSecret{
+	secret := models.VaultSecret{
 		UserID:        userID,
 		EncryptedData: []byte(encryptedData),
 		Metadata:      req.Metadata,
 	}
 
-	database.DB.Create(&entry)
+	database.DB.Create(&secret)
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Data saved"})
 }
 
-func GetVaultEntries(w http.ResponseWriter, r *http.Request) {
+func GetVaultSecrets(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("user_id").(string)
 
-	var entries []models.VaultSecret
-	database.DB.Where("user_id = ?", userID).Find(&entries)
+	var secrets []models.VaultSecret
+	database.DB.Where("user_id = ?", userID).Find(&secrets)
 
-	decryptedEntries := []map[string]string{}
-	for _, entry := range entries {
-		decryptedData, err := auth.DecryptData(string(entry.EncryptedData))
+	decryptedSecrets := []map[string]string{}
+	for _, secret := range secrets {
+		decryptedData, err := auth.DecryptData(string(secret.EncryptedData))
 		if err != nil {
 			continue
 		}
 
-		decryptedEntries = append(decryptedEntries, map[string]string{
-			"id":       entry.ID,
+		decryptedSecrets = append(decryptedSecrets, map[string]string{
+			"id":       secret.ID,
 			"data":     decryptedData,
-			"metadata": entry.Metadata,
+			"metadata": secret.Metadata,
 		})
 	}
 
-	json.NewEncoder(w).Encode(decryptedEntries)
+	json.NewEncoder(w).Encode(decryptedSecrets)
 }
 
-func DeleteVaultEntry(w http.ResponseWriter, r *http.Request) {
+func DeleteVaultSecret(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("user_id").(string)
-	entryID := chi.URLParam(r, "id")
+	secretID := chi.URLParam(r, "id")
 
-	result := database.DB.Where("id = ? AND user_id = ?", entryID, userID).Delete(&models.VaultSecret{})
+	result := database.DB.Where("id = ? AND user_id = ?", secretID, userID).Delete(&models.VaultSecret{})
 	if result.RowsAffected == 0 {
 		http.Error(w, "Secret not found", http.StatusNotFound)
 		return
