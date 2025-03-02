@@ -6,12 +6,12 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 
 	"github.com/sshirox/secrets-keeper/internal/database"
 	"github.com/sshirox/secrets-keeper/internal/handlers"
-	auth "github.com/sshirox/secrets-keeper/internal/middleware"
+	"github.com/sshirox/secrets-keeper/internal/middleware"
 )
 
 func main() {
@@ -19,14 +19,14 @@ func main() {
 	database.ConnectDatabase()
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
 
 	r.Post("/register", handlers.Register)
 	r.Post("/login", handlers.Login)
 
 	r.Route("/vault", func(r chi.Router) {
-		r.Use(auth.AuthMiddleware)
+		r.Use(middleware.AuthMiddleware)
 
 		r.Post("/", handlers.AddVaultSecret)
 		r.Get("/", handlers.GetVaultSecrets)

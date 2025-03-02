@@ -30,7 +30,6 @@ var addCmd = &cobra.Command{
 }
 
 func init() {
-	mainCmd.AddCommand(addCmd)
 	addCmd.Flags().StringP("type", "t", "", "Data type (login, text, binary, card)")
 	addCmd.Flags().StringP("data", "d", "", "Data to store")
 	addCmd.Flags().StringP("metadata", "m", "", "Additional metadata")

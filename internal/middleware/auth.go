@@ -1,25 +1,42 @@
-package auth
+package middleware
 
 import (
 	"context"
 	"net/http"
 	"os"
 
-	"github.com/go-chi/jwtauth/v5"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-var TokenAuth *jwtauth.JWTAuth
-
-func init() {
-	secret := os.Getenv("JWT_SECRET")
-	TokenAuth = jwtauth.New("HS256", []byte(secret), nil)
-}
+var secretKey = os.Getenv("JWT_SECRET")
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, claims, err := jwtauth.FromContext(r.Context())
-		if err != nil {
+		tokenString := r.Header.Get("Authorization")
+		if tokenString == "" {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
+			tokenString = tokenString[7:]
+		}
+
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, http.ErrAbortHandler
+			}
+			return []byte(secretKey), nil
+		})
+
+		if err != nil || !token.Valid {
+			http.Error(w, "Unauthorized: Invalid Token", http.StatusUnauthorized)
+			return
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok || claims["user_id"] == nil {
+			http.Error(w, "Token error", http.StatusUnauthorized)
 			return
 		}
 
@@ -32,9 +49,4 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), "user_id", userID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func GenerateToken(userID string) (string, error) {
-	_, tokenString, err := TokenAuth.Encode(map[string]interface{}{"user_id": userID})
-	return tokenString, err
 }
