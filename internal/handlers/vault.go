@@ -11,6 +11,7 @@ import (
 )
 
 type VaultRequest struct {
+	Type     string `json:"type"`
 	Data     string `json:"data"`
 	Metadata string `json:"metadata"`
 }
@@ -24,6 +25,11 @@ func AddVaultSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Type == "" {
+		http.Error(w, "Data type id required", http.StatusBadRequest)
+		return
+	}
+
 	encryptedData, err := auth.EncryptData(req.Data)
 	if err != nil {
 		http.Error(w, "Encryption error", http.StatusInternalServerError)
@@ -32,6 +38,7 @@ func AddVaultSecret(w http.ResponseWriter, r *http.Request) {
 
 	secret := models.VaultSecret{
 		UserID:        userID,
+		Type:          req.Type,
 		EncryptedData: []byte(encryptedData),
 		Metadata:      req.Metadata,
 	}
@@ -48,7 +55,7 @@ func GetVaultSecrets(w http.ResponseWriter, r *http.Request) {
 	var secrets []models.VaultSecret
 	database.DB.Where("user_id = ?", userID).Find(&secrets)
 
-	decryptedSecrets := []map[string]string{}
+	var decryptedSecrets []map[string]string
 	for _, secret := range secrets {
 		decryptedData, err := auth.DecryptData(string(secret.EncryptedData))
 		if err != nil {
@@ -57,6 +64,7 @@ func GetVaultSecrets(w http.ResponseWriter, r *http.Request) {
 
 		decryptedSecrets = append(decryptedSecrets, map[string]string{
 			"id":       secret.ID,
+			"type":     secret.Type,
 			"data":     decryptedData,
 			"metadata": secret.Metadata,
 		})

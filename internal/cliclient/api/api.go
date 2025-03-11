@@ -99,8 +99,12 @@ func AddVaultSecret(secretType, data, metadata string) error {
 		SetBody(map[string]string{"type": secretType, "data": data, "metadata": metadata}).
 		Post("/vault")
 
-	if err != nil || resp.StatusCode() != http.StatusCreated {
-		return errors.New("addition data error: " + resp.String())
+	if err != nil {
+		return fmt.Errorf("addition data error: %w", err)
+	}
+	if resp.StatusCode() != http.StatusCreated {
+		msg := fmt.Sprintf("addition data error: %s, received status code: %d", resp.String(), resp.StatusCode())
+		return errors.New(msg)
 	}
 
 	return nil
